@@ -52,10 +52,6 @@ That's it! No database changes or complex setup.
 - Real-time total calculation with validation messages (e.g., "Select at least 2 products").
 - Add to cart seamlessly—bundle contents appear in the cart with no edit links on checkout/cart pages.
 
-## 🧩 Customization
-
-Use hooks like `wc_super_bundle_pro_add_to_cart_validation` for custom rules. Full docs in the wiki.
-
 ## 💼 Use Cases
 
 - **Upsell Kits:** Bundle related items like "Photography Kit" (camera + lens + bag) with 20% off.
