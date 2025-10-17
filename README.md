@@ -11,8 +11,6 @@
 
 This lightweight, SEO-optimized plugin is fully compatible with the latest WooCommerce versions. Set up bundles in minutes without coding and watch your sales grow!
 
-![WooCommerce Super Bundle Pro Frontend Demo](assets/frontend-bundle.png "Free WooCommerce product bundling plugin with real-time pricing and variation selection")
-
 ## 🔑 Key Features
 
 - **Customizable Bundles:** Build open bundles where customers pick from products (with min/max quantity limits) or closed bundles for quick, fixed purchases.
