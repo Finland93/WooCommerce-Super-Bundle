@@ -54,7 +54,7 @@ That's it! No database changes or complex setup.
 
 ## 💼 Use Cases
 
-- **Upsell Kits:** Bundle related items like "Photography Kit" (camera + lens + bag) with 20% off.
+- **Upsell Kits:** Bundle related items.
 - **Subscription Boxes:** Open bundles for customizable monthly deliveries.
 - **Clearance Sales:** Closed bundles to move inventory fast.
 - **Gift Sets:** Variable options for personalized gifting.
