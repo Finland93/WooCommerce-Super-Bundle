@@ -17,7 +17,6 @@ This WooCommerce product bundling plugin is SEO-optimized, lightweight, and full
 - **Min/Max Constraints:** Enforce minimum and maximum items or total value to prevent abuse (e.g., limit to 2-5 items per bundle).
 - **Stock & Validation:** Real-time stock checks, out-of-stock handling, and form validation ensure smooth purchases.
 - **Cart Integration:** Bundles display contents in the cart with edit options (on product page only). Supports bundled or separate shipping/tax calculations.
-- **SEO-Friendly:** Optimized for search engines with keywords like "WooCommerce bundle plugin," "product bundling for WooCommerce," and "discount bundles WooCommerce."
 - **Mobile-Responsive:** Clean, intuitive frontend interface works seamlessly on all devices.
 - **Developer-Friendly:** Hooks and filters for easy customization. No bloat—uses WooCommerce core functions.
 
