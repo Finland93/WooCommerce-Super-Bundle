@@ -1,54 +1,94 @@
-# WooCommerce Super Bundle
-
-A powerful WooCommerce plugin to create customizable product bundles, including open bundles with flexible selections and closed bundles for fixed discount packs.
-
-## Description
-
-The **WooCommerce Super Bundle** plugin enhances your WooCommerce store by allowing sellers to create product bundles to boost sales and offer discounts. This plugin supports two types of bundles:
-
-- **Open Bundles**: Customers can select a predefined minimum and maximum number of products (e.g., 2-5 items) from a curated list, including support for variable products with variation options.
-- **Closed Bundles**: Predefined sets of products where customers cannot modify the contents, perfect for promoting fixed discount packs.
-
-Key features include a user-friendly frontend interface, seamless integration with all WooCommerce product types, and flexible pricing options (fixed price or percentage discount).
-
-### Why Choose WooCommerce Super Bundle?
-- Increase average order value with bundle offers.
-- Compatible with variable products and all WooCommerce features.
-- Easy-to-use backend settings for translations and bundle configuration.
-- Single-file plugin, ready to use out of the box.
-
-## Installation
-
-1. Download the plugin file from the [GitHub repository](https://github.com/Finland93/WooCommerce-Super-Bundle).
-2. Upload the file to your WordPress site via the **Plugins > Add New > Upload Plugin** section.
-3. Activate the plugin through the **Plugins** menu in WordPress.
-4. Configure bundle settings and create bundle products from the WooCommerce product admin panel.
-
-## Usage
-
-### Backend Configuration
-- Navigate to the plugin settings page to manage translations for user-facing text.
-- Create a new product and select the "Bundle" product type.
-- Define whether it’s an open or closed bundle, set min/max limits (for open bundles), and configure pricing (fixed or discounted).
-
-### Frontend Experience
-- Open bundles display a selection area where customers choose products within the set limits, with real-time validation (e.g., "Add X more items").
-- Closed bundles show a read-only list of included products.
-- Selected items are added to the cart alongside the bundle product for seller clarity.
-
-## Features
-- **Flexible Bundle Types**: Open and closed bundle options.
-- **Translation Support**: Customize user-facing text via settings.
-- **Pricing Options**: Set fixed prices or apply discount percentages.
-- **Compatibility**: Works with all WooCommerce product types, including variations.
-- **User Interface**: Intuitive selection process with min/max controls.
-
-## License
-This plugin is released under the [GPL-2.0 License](https://www.gnu.org/licenses/gpl-2.0.html).
-
-## Support
-For support or questions, please contact the author via the GitHub repository or raise an issue.
+# WooCommerce Super Bundle Pro  
+**The Ultimate Product Bundling Plugin for WooCommerce**  
 
 ---
 
-*Last updated: October 17, 2025*
+## Overview  
+**WooCommerce Super Bundle Pro** is the most powerful and flexible WooCommerce bundle plugin designed for eCommerce stores looking to boost sales through customizable product bundles.  
+
+Create **dynamic product bundles** with discounts, variation support, min/max item limits, and both **open bundles** (where customers choose items) and **closed bundles** (fixed packages). Perfect for **upselling**, **cross-selling**, and **increasing average order value**.  
+
+This plugin is **SEO-optimized**, **lightweight**, and fully compatible with the latest WooCommerce versions.  
+No coding required—set up bundles in minutes and watch your conversions soar!
+
+---
+
+## 🔑 Key Features
+
+- **Customizable Bundles:**  
+  Create *open bundles* (customers choose items) or *closed bundles* (fixed sets).  
+  Supports min/max item limits for flexibility.
+
+- **Smart Pricing:**  
+  Use fixed pricing or auto-pricing (based on selected items) with percentage or flat discounts.  
+  Prices update in real-time on the frontend.
+
+- **Variation Support:**  
+  Full support for WooCommerce variable products — let customers select options like size, color, or material.
+
+- **Min/Max Constraints:**  
+  Set minimum/maximum items or total value per bundle to prevent abuse.
+
+- **Stock & Validation:**  
+  Real-time stock checks, out-of-stock handling, and validation before adding to cart.
+
+- **Cart Integration:**  
+  Bundles display contents clearly in the cart. Supports bundled or separate tax/shipping calculations.
+
+- **SEO-Friendly:**  
+  Optimized for terms like “WooCommerce bundle plugin,” “product bundling for WooCommerce,” and “discount bundles WooCommerce.”
+
+- **Mobile-Responsive:**  
+  Fully responsive interface designed for seamless mobile performance.
+
+- **Developer-Friendly:**  
+  Clean codebase using WooCommerce core functions with hooks and filters for customization.
+
+---
+
+## 💡 Why Choose Super Bundle Pro?
+
+Unlike other bundling plugins, **WooCommerce Super Bundle Pro** is:
+- 💸 **Free and open-source**
+- ⚙️ **Packed with pro-level features**
+- 🛍️ **Ideal for all stores** — from dropshipping to digital and physical goods
+
+---
+
+## ⚙️ Installation
+
+1. Download the plugin ZIP from **GitHub Releases**.  
+2. In WordPress Admin:  
+   `Plugins → Add New → Upload Plugin` → Upload the ZIP file.  
+3. Click **Activate Plugin**.  
+4. Ensure WooCommerce is installed and active.  
+   - **Requirements:** WooCommerce 8.0+ and PHP 7.4+
+
+That’s it — no database changes or complicated setup required.
+
+---
+
+## 🚀 Quick Start Guide
+
+### Creating a Bundle (Admin)
+1. Go to **Products → Add New**  
+2. Select **Super Bundle Pro** as the product type.  
+3. In the **Super Bundle Pro** tab:
+   - Choose **Bundle Type:** Open (customer selects) or Closed (fixed)
+   - Set **Price Mode:** Auto (sum + discount) or Fixed
+   - Add bundle products and configure min/max limits
+   - Apply any discounts
+4. Click **Save Product**
+
+### Frontend Experience
+- Customers see a clean, customizable bundle form with product variations.  
+- Real-time total and validation messages (e.g., *“Select at least 2 products”*).  
+- Bundles are added to the cart seamlessly — no editing from the cart/checkout pages.
+
+---
+
+## 🧩 Customization
+
+Use action hooks and filters like:
+```php
+wc_super_bundle_pro_add_to_cart_validation
