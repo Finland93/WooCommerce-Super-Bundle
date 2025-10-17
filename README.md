@@ -43,9 +43,6 @@ Key features include a user-friendly frontend interface, seamless integration wi
 - **Compatibility**: Works with all WooCommerce product types, including variations.
 - **User Interface**: Intuitive selection process with min/max controls.
 
-## Contributing
-Contributions are welcome! Please fork the repository and submit pull requests with your improvements. For issues or feature requests, open a ticket in the [Issues tab](https://github.com/Finland93/WooCommerce-Super-Bundle/issues).
-
 ## License
 This plugin is released under the [GPL-2.0 License](https://www.gnu.org/licenses/gpl-2.0.html).
 
