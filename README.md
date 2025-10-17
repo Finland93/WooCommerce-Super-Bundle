@@ -58,10 +58,6 @@ That's it! No database changes or complex setup.
 - **Clearance Sales:** Closed bundles to move inventory fast.
 - **Gift Sets:** Variable options for personalized gifting.
 
-## 🔍 SEO & Keywords
-
-Search terms: WooCommerce bundle plugin free, best product bundler for WooCommerce, dynamic bundles WooCommerce.
-
 ## 🧠 Requirements & Compatibility
 
 - WordPress: 5.0+
