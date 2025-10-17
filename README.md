@@ -1,7 +1,6 @@
 # WooCommerce Super Bundle Pro  
 **The Ultimate Product Bundling Plugin for WooCommerce**
 
-![WordPress plugin](https://img.shields.io/wordpress/plugin/v/woocommerce-super-bundle-pro.svg)  
 ![Tested with WooCommerce](https://img.shields.io/badge/WooCommerce-8.0%2B-green.svg)  
 ![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)
 
