@@ -139,24 +139,17 @@ function wc_super_bundle_pro_init() {
             if ($bundle_type === 'closed') {
                 foreach ($products as $product_data) {
                     $product_id = $product_data['id'];
-                    $qty = intval($product_data['qty'] ?? 1);
                     $product = wc_get_product($product_id);
-                    if (!$product || !$product->has_enough_stock($qty)) return false;
+                    if (!$product || !$product->is_in_stock()) return false;
                 }
             } else {
                 $min_items = absint(get_post_meta($this->get_id(), '_bundle_min_items', true)) ?: 1;
-                $available_units = 0;
+                $in_stock_count = 0;
                 foreach ($products as $product_data) {
                     $product = wc_get_product($product_data['id']);
-                    if ($product && $product->is_in_stock()) {
-                        if ($product->managing_stock()) {
-                            $available_units += max(0, (int) $product->get_stock_quantity());
-                        } else {
-                            $available_units += 999999;
-                        }
-                    }
+                    if ($product && $product->is_in_stock()) $in_stock_count++;
                 }
-                if ($available_units < $min_items) return false;
+                if ($in_stock_count < $min_items) return false;
             }
             return true;
         }
@@ -177,8 +170,7 @@ function wc_super_bundle_pro_init() {
                         $product = wc_get_product($product_data['id']);
                         if ($product) {
                             $price = floatval($product->get_price($context));
-                            $qty = intval($product_data['qty'] ?? 1);
-                            $total += $price * $qty;
+                            $total += $price;
                         }
                     }
                 } else {
@@ -284,7 +276,7 @@ function wc_super_bundle_pro_init() {
                     ],
                     'value'   => $bundle_type,
                     'desc_tip' => true,
-                    'description' => __('Open: Customers can adjust quantities and select variations. Closed: Fixed items and quantities.', 'woocommerce-super-bundle-pro'),
+                    'description' => __('Open: Customers can select products to include (one each). Closed: Fixed items.', 'woocommerce-super-bundle-pro'),
                 ]);
                 woocommerce_wp_select([
                     'id'          => '_bundle_price_mode',
@@ -341,7 +333,7 @@ function wc_super_bundle_pro_init() {
                         'custom_attributes' => ['min' => 1],
                         'value'       => $min_items,
                         'desc_tip' => true,
-                        'description' => __('Minimum total items to select.', 'woocommerce-super-bundle-pro'),
+                        'description' => __('Minimum number of products to select.', 'woocommerce-super-bundle-pro'),
                     ]);
                     woocommerce_wp_text_input([
                         'id'          => '_bundle_max_items',
@@ -350,7 +342,7 @@ function wc_super_bundle_pro_init() {
                         'custom_attributes' => ['min' => 0],
                         'value'       => $max_items,
                         'desc_tip' => true,
-                        'description' => __('Maximum total items to select. 0 for unlimited.', 'woocommerce-super-bundle-pro'),
+                        'description' => __('Maximum number of products to select. 0 for unlimited.', 'woocommerce-super-bundle-pro'),
                     ]);
                     woocommerce_wp_text_input([
                         'id'          => '_bundle_min_total',
@@ -403,14 +395,13 @@ function wc_super_bundle_pro_init() {
                                 $product_id = $product_data['id'];
                                 $product = wc_get_product($product_id);
                                 if (is_object($product)) {
-                                    $qty = intval($product_data['qty'] ?? 1);
-                                    echo '<option value="' . esc_attr($product_id) . '" selected="selected" data-qty="' . $qty . '">' . wp_kses_post($product->get_formatted_name()) . ' (Qty: ' . $qty . ')</option>';
+                                    echo '<option value="' . esc_attr($product_id) . '" selected="selected">' . wp_kses_post($product->get_formatted_name()) . '</option>';
                                 }
                             }
                         }
                         ?>
                     </select>
-                    <?php echo wc_help_tip(__('Select products/variations. For open bundles, set default quantities.', 'woocommerce-super-bundle-pro')); ?>
+                    <?php echo wc_help_tip(__('Select products to include in the bundle. Each product can be selected only once.', 'woocommerce-super-bundle-pro')); ?>
                 </p>
             </div>
             <script type="text/javascript">
@@ -447,13 +438,12 @@ function wc_super_bundle_pro_init() {
         $tax_status = sanitize_text_field($_POST['_bundle_tax_status'] ?? 'bundled');
         $bundle_products_input = isset($_POST['bundle_products']) ? array_map('absint', (array) $_POST['bundle_products']) : [];
 
-        // Process products with quantities (default 1)
+        // Process products (qty always 1)
         $bundle_products = [];
         foreach ($bundle_products_input as $product_id) {
-            $qty = absint($_POST['bundle_qty_' . $product_id] ?? 1);
             $bundle_products[] = [
                 'id' => $product_id,
-                'qty' => $qty,
+                'qty' => 1,
             ];
         }
 
@@ -468,8 +458,12 @@ function wc_super_bundle_pro_init() {
         }
         if ($bundle_type === 'open') {
             $min_items = max(1, $min_items);
+            if ($min_items > count($bundle_products)) {
+                WC_Admin_Meta_Boxes::add_error(__('Min items exceed available products.', 'woocommerce-super-bundle-pro'));
+                return;
+            }
         } else {
-            $min_items = $max_items = array_sum(array_column($bundle_products, 'qty'));
+            $min_items = $max_items = count($bundle_products);
         }
 
         // Recursion check
@@ -561,28 +555,34 @@ function wc_super_bundle_pro_init() {
         $shipping_method = get_post_meta($bundle_id, '_bundle_shipping_method', true) ?: 'bundled';
 
         $translations = get_option('wc_super_bundle_pro_translations', [
-            'select_items_min_max' => __('Select %1$d to %2$d items', 'woocommerce-super-bundle-pro'),
-            'select_items_min' => __('Select at least %d items', 'woocommerce-super-bundle-pro'),
-            'fixed_bundle' => __('Fixed Bundle: %d items', 'woocommerce-super-bundle-pro'),
+            'select_items_min_max' => __('Select %1$d to %2$d products', 'woocommerce-super-bundle-pro'),
+            'select_items_min' => __('Select at least %d products', 'woocommerce-super-bundle-pro'),
+            'fixed_bundle' => __('Fixed Bundle: %d products', 'woocommerce-super-bundle-pro'),
             'total' => __('Bundle Total: ', 'woocommerce-super-bundle-pro'),
             'add_to_cart' => __('Add to Cart', 'woocommerce-super-bundle-pro'),
             'out_of_stock' => __('Out of stock', 'woocommerce-super-bundle-pro'),
             'min_total_error' => __('Total must be at least %s', 'woocommerce-super-bundle-pro'),
             'max_total_error' => __('Total cannot exceed %s', 'woocommerce-super-bundle-pro'),
-            'min_items_error' => __('Select at least %d items', 'woocommerce-super-bundle-pro'),
-            'max_items_error' => __('Cannot select more than %d items', 'woocommerce-super-bundle-pro'),
+            'min_items_error' => __('Select at least %d products', 'woocommerce-super-bundle-pro'),
+            'max_items_error' => __('Cannot select more than %d products', 'woocommerce-super-bundle-pro'),
             'select_variation' => __('Please select all variations.', 'woocommerce-super-bundle-pro'),
         ]);
+
+        $edit_data = [];
+        if (WC()->session) {
+            $edit_data = WC()->session->get('edit_bundle_pro_data_' . $bundle_id, []);
+            WC()->session->__unset('edit_bundle_pro_data_' . $bundle_id);
+        }
 
         if (empty($bundle_products)) {
             echo '<div class="woocommerce-error">' . esc_html__('No products in bundle.', 'woocommerce-super-bundle-pro') . '</div>';
             return;
         }
 
-        $fixed_qty_sum = array_sum(array_column($bundle_products, 'qty'));
+        $products_count = count($bundle_products);
         $header_text = $bundle_type === 'open' 
             ? ($max_items > 0 ? sprintf($translations['select_items_min_max'], $min_items, $max_items) : sprintf($translations['select_items_min'], $min_items))
-            : sprintf($translations['fixed_bundle'], $fixed_qty_sum);
+            : sprintf($translations['fixed_bundle'], $products_count);
 
         // Closed total
         $closed_total = $product->get_price();
@@ -594,7 +594,7 @@ function wc_super_bundle_pro_init() {
             .bundle-item.out-of-stock { opacity: 0.5; }
             .bundle-item-image { max-width: 100%; height: auto; }
             .bundle-item-header { font-weight: bold; margin-bottom: 5px; }
-            .bundle-qty-input { width: 60px; text-align: center; }
+            .bundle-qty-checkbox { margin: 5px 0; }
             .bundle-variation-select { width: 100%; margin: 5px 0; }
             .bundle-item-price { font-weight: bold; color: #e74c3c; }
             .bundle-total { font-size: 1.3em; font-weight: bold; margin: 15px 0; color: #27ae60; }
@@ -610,26 +610,27 @@ function wc_super_bundle_pro_init() {
                     <div class="bundle-items">
                         <?php foreach ($bundle_products as $index => $product_data) :
                             $p_id = $product_data['id'];
-                            $default_qty = intval($product_data['qty'] ?? 1);
                             $p = wc_get_product($p_id);
                             if (!$p) continue;
                             $stock_status = $p->is_in_stock() ? '' : ' out-of-stock';
                             $base_price = floatval($p->get_price('view'));
                             $base_price_html = wc_price($base_price);
+                            $selected = isset($edit_data['quantities'][$p_id]) ? $edit_data['quantities'][$p_id] : 0;
                         ?>
                             <div class="bundle-item <?php echo $stock_status; ?>" data-product-id="<?php echo esc_attr($p_id); ?>" data-price="<?php echo esc_attr($base_price); ?>" data-name="<?php echo esc_attr(strtolower($p->get_name())); ?>">
                                 <img src="<?php echo wp_get_attachment_image_src($p->get_image_id(), 'thumbnail')[0] ?? wc_placeholder_img_src(); ?>" alt="<?php echo esc_attr($p->get_name()); ?>" class="bundle-item-image">
                                 <div class="bundle-item-header"><?php echo esc_html($p->get_name()); ?></div>
                                 <div class="bundle-item-price"><?php echo $base_price_html; ?></div>
-                                <input type="number" class="bundle-qty-input" name="bundle_quantities[<?php echo $p_id; ?>]" value="<?php echo $default_qty; ?>" min="0" <?php echo $p->is_in_stock() ? '' : 'disabled'; ?>>
+                                <label><input type="checkbox" class="bundle-qty-checkbox" name="bundle_quantities[<?php echo $p_id; ?>]" value="1" <?php checked($selected, 1); ?> <?php echo $p->is_in_stock() ? '' : 'disabled'; ?>> Include</label>
                                 <?php if ($p->is_type('variable')) :
                                     $attributes = $p->get_variation_attributes();
                                     foreach ($attributes as $attr_key => $options) :
+                                        $selected_val = isset($edit_data['variations'][$p_id][$attr_key]) ? $edit_data['variations'][$p_id][$attr_key] : '';
                                 ?>
                                     <select class="bundle-variation-select" name="bundle_variations[<?php echo $p_id; ?>][<?php echo esc_attr($attr_key); ?>]" data-attr="<?php echo esc_attr($attr_key); ?>">
                                         <option value=""><?php esc_html_e('Choose an option', 'woocommerce'); ?></option>
                                         <?php foreach ($options as $option) : ?>
-                                            <option value="<?php echo esc_attr($option); ?>"><?php echo esc_html($option); ?></option>
+                                            <option value="<?php echo esc_attr($option); ?>" <?php selected($selected_val, $option); ?>><?php echo esc_html($option); ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 <?php endforeach; endif; ?>
@@ -642,12 +643,14 @@ function wc_super_bundle_pro_init() {
                         <?php foreach ($bundle_products as $product_data) :
                             $p_id = $product_data['id'];
                             $p = wc_get_product($p_id);
-                            $qty = intval($product_data['qty'] ?? 1);
-                            if ($p) echo '<li>' . esc_html($p->get_name()) . ' x ' . $qty . ' - ' . wc_price(floatval($p->get_price()) * $qty) . '</li>';
+                            if ($p) echo '<li>' . esc_html($p->get_name()) . ' - ' . wc_price(floatval($p->get_price())) . '</li>';
                         endforeach; ?>
                     </ul>
                     <div class="bundle-total"><?php echo esc_html($translations['total']); ?><?php echo wc_price($closed_total); ?></div>
                     <button type="submit" name="add-to-cart" value="<?php echo esc_attr($bundle_id); ?>" class="single_add_to_cart_button button alt"><?php echo esc_html($translations['add_to_cart']); ?></button>
+                <?php endif; ?>
+                <?php if (isset($_GET['edit_bundle'])) : ?>
+                    <input type="hidden" name="editing_bundle_key" value="<?php echo esc_attr(sanitize_text_field($_GET['edit_bundle'])); ?>">
                 <?php endif; ?>
                 <?php wp_nonce_field('woocommerce-cart', 'woocommerce-cart-nonce'); ?>
             </div>
@@ -668,6 +671,7 @@ function wc_super_bundle_pro_init() {
                 var $search = $container.find('.bundle-search');
                 var currencySymbol = '<?php echo get_woocommerce_currency_symbol(); ?>';
                 var decimals = <?php echo wc_get_price_decimals(); ?>;
+                var editData = <?php echo json_encode($edit_data); ?>;
 
                 function formatPrice(num) {
                     return currencySymbol + num.toFixed(decimals);
@@ -679,12 +683,13 @@ function wc_super_bundle_pro_init() {
                     var incomplete = false;
                     $container.find('.bundle-item').each(function() {
                         var $item = $(this);
-                        var qty = parseInt($item.find('.bundle-qty-input').val() || 0);
+                        var $checkbox = $item.find('.bundle-qty-checkbox');
+                        var qty = $checkbox.is(':checked') ? 1 : 0;
                         totalQty += qty;
                         if (qty > 0) {
                             var price = parseFloat($item.data('price') || 0);
                             subtotal += price * qty;
-                            // Check variations if qty > 0
+                            // Check variations if checked
                             if ($item.find('.bundle-variation-select').length > 0) {
                                 $item.find('.bundle-variation-select').each(function() {
                                     if (!$(this).val()) incomplete = true;
@@ -727,39 +732,32 @@ function wc_super_bundle_pro_init() {
                     });
                 });
 
-                // Qty change
-                $container.on('change input', '.bundle-qty-input', function() {
+                // Checkbox change
+                $container.on('change', '.bundle-qty-checkbox', function() {
                     var $item = $(this).closest('.bundle-item');
-                    var qty = parseInt($(this).val() || 0);
-                    $item.find('.bundle-variation-select').prop('disabled', qty === 0);
+                    var checked = $(this).is(':checked');
+                    $item.find('.bundle-variation-select').prop('disabled', !checked);
                     calculateTotal();
                 });
 
                 // Variation change
                 $container.on('change', '.bundle-variation-select', function() {
-                    var $item = $(this).closest('.bundle-item');
-                    var productId = $item.data('product-id');
-                    var variations = {};
-                    $item.find('.bundle-variation-select').each(function() {
-                        variations[$(this).data('attr')] = $(this).val();
-                    });
-                    if (Object.values(variations).every(v => v)) {
-                        $.post('<?php echo admin_url('admin-ajax.php'); ?>', {
-                            action: 'wc_super_bundle_pro_get_variation_price',
-                            product_id: productId,
-                            variations: variations,
-                            nonce: '<?php echo wp_create_nonce('wc_super_bundle_pro_nonce'); ?>'
-                        }).done(function(resp) {
-                            if (resp.success) {
-                                $item.data('price', resp.data.price);
-                                $item.find('.bundle-item-price').html(resp.data.html);
-                            }
-                            calculateTotal();
-                        });
-                    } else {
-                        calculateTotal();
-                    }
+                    calculateTotal();
                 });
+
+                // Preload edit data
+                if (Object.keys(editData).length > 0) {
+                    $.each(editData.quantities || {}, function(pid, qty) {
+                        if (qty == 1) {
+                            $container.find('.bundle-qty-checkbox[name="bundle_quantities[' + pid + ']"]').prop('checked', true).trigger('change');
+                        }
+                    });
+                    $.each(editData.variations || {}, function(pid, vars) {
+                        $.each(vars, function(attr, val) {
+                            $container.find('.bundle-variation-select[name="bundle_variations[' + pid + '][' + attr + ']"]').val(val).trigger('change');
+                        });
+                    });
+                }
 
                 calculateTotal();
             });
@@ -810,38 +808,38 @@ function wc_super_bundle_pro_init() {
         if ($bundle_type === 'closed') {
             foreach ($bundle_products as $product_data) {
                 $p_id = $product_data['id'];
-                $qty = intval($product_data['qty'] ?? 1);
                 $p = wc_get_product($p_id);
-                if (!$p || !$p->has_enough_stock($qty)) {
-                    wc_add_notice(sprintf(__('%s does not have enough stock.', 'woocommerce-super-bundle-pro'), $p->get_name()), 'error');
+                if (!$p || !$p->is_in_stock()) {
+                    wc_add_notice(sprintf(__('%s is out of stock.', 'woocommerce-super-bundle-pro'), $p->get_name()), 'error');
                     return false;
                 }
             }
             return $passed;
         }
 
-        $quantities = isset($_POST['bundle_quantities']) ? array_map('absint', (array) $_POST['bundle_quantities']) : [];
-        $variations = isset($_POST['bundle_variations']) ? (array) $_POST['bundle_variations'] : [];
-        $total_qty = array_sum($quantities);
+        $selected_quantities = isset($_POST['bundle_quantities']) ? array_keys((array) $_POST['bundle_quantities']) : [];
+        $total_qty = count($selected_quantities);
         if ($total_qty < $min_items) {
-            wc_add_notice(sprintf(__('Select at least %d items', 'woocommerce-super-bundle-pro'), $min_items), 'error');
+            wc_add_notice(sprintf(__('Select at least %d products', 'woocommerce-super-bundle-pro'), $min_items), 'error');
             return false;
         }
         if ($max_items > 0 && $total_qty > $max_items) {
-            wc_add_notice(sprintf(__('Cannot select more than %d items', 'woocommerce-super-bundle-pro'), $max_items), 'error');
+            wc_add_notice(sprintf(__('Cannot select more than %d products', 'woocommerce-super-bundle-pro'), $max_items), 'error');
             return false;
         }
 
         // Calculate total for min/max total check and stock
         $subtotal = 0;
-        foreach ($quantities as $p_id => $qty) {
+        foreach ($bundle_products as $product_data) {
+            $p_id = $product_data['id'];
+            $qty = in_array($p_id, $selected_quantities) ? 1 : 0;
             if ($qty > 0) {
                 $p = wc_get_product($p_id);
                 if (!$p) continue;
                 $price = floatval($p->get_price('edit'));
                 $selected_var_id = 0;
-                if (isset($variations[$p_id])) {
-                    $var_attrs = array_map('sanitize_text_field', $variations[$p_id]);
+                if (isset($_POST['bundle_variations'][$p_id])) {
+                    $var_attrs = array_map('sanitize_text_field', $_POST['bundle_variations'][$p_id]);
                     $selected_var_id = wc_get_variation_id_from_variation_data($p_id, $var_attrs);
                     $var = wc_get_product($selected_var_id);
                     if ($var) {
@@ -852,8 +850,8 @@ function wc_super_bundle_pro_init() {
                         return false;
                     }
                 }
-                if (!$p->has_enough_stock($qty)) {
-                    wc_add_notice(sprintf(__('%s does not have enough stock for quantity %d.', 'woocommerce-super-bundle-pro'), $p->get_name(), $qty), 'error');
+                if (!$p->is_in_stock()) {
+                    wc_add_notice(sprintf(__('%s is out of stock.', 'woocommerce-super-bundle-pro'), $p->get_name()), 'error');
                     return false;
                 }
                 $subtotal += $price * $qty;
@@ -887,24 +885,36 @@ function wc_super_bundle_pro_init() {
         if (!$product || !$product->is_type('super_bundle_pro')) return $cart_item_data;
 
         $bundle_type = get_post_meta($product_id, '_bundle_type', true);
+        $bundle_products = get_post_meta($product_id, '_bundle_products', true) ?: [];
+        $quantities = [];
+        $variations = [];
         if ($bundle_type === 'closed') {
-            $bundle_products = get_post_meta($product_id, '_bundle_products', true) ?: [];
-            $quantities = [];
             foreach ($bundle_products as $pd) {
-                $quantities[$pd['id']] = intval($pd['qty'] ?? 1);
+                $quantities[$pd['id']] = 1;
             }
-            $cart_item_data['super_bundle_pro_data'] = [
-                'quantities' => $quantities,
-                'variations' => [],
-            ];
         } else {
-            $cart_item_data['super_bundle_pro_data'] = [
-                'quantities' => isset($_POST['bundle_quantities']) ? array_map('absint', (array) $_POST['bundle_quantities']) : [],
-                'variations' => isset($_POST['bundle_variations']) ? (array) $_POST['bundle_variations'] : [],
-            ];
+            $selected_quantities = isset($_POST['bundle_quantities']) ? array_keys((array) $_POST['bundle_quantities']) : [];
+            foreach ($bundle_products as $pd) {
+                $p_id = $pd['id'];
+                $quantities[$p_id] = in_array($p_id, $selected_quantities) ? 1 : 0;
+            }
+            $variations = isset($_POST['bundle_variations']) ? (array) $_POST['bundle_variations'] : [];
         }
+        $cart_item_data['super_bundle_pro_data'] = [
+            'quantities' => $quantities,
+            'variations' => $variations,
+        ];
         $cart_item_data['unique_key'] = md5(microtime() . rand());
         return $cart_item_data;
+    }
+
+    // Handle edit - remove old item after adding new
+    add_action('woocommerce_add_to_cart', 'wc_super_bundle_pro_handle_edit_after_add', 10, 6);
+    function wc_super_bundle_pro_handle_edit_after_add($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data) {
+        if (isset($_POST['editing_bundle_key'])) {
+            $old_key = sanitize_text_field($_POST['editing_bundle_key']);
+            WC()->cart->remove_cart_item($old_key);
+        }
     }
 
     // Cart display
@@ -926,7 +936,7 @@ function wc_super_bundle_pro_init() {
                                 $display_name = $var->get_name();
                             }
                         }
-                        $contents .= '<li class="variation">' . esc_html($display_name) . ' &times; ' . absint($qty) . '</li>';
+                        $contents .= '<li class="variation">' . esc_html($display_name) . '</li>';
                     }
                 }
             }
@@ -963,7 +973,7 @@ function wc_super_bundle_pro_init() {
                                 $var = wc_get_product($var_id);
                                 if ($var) $price = floatval($var->get_price('edit'));
                             }
-                            $subtotal += $price * $qty;
+                            $subtotal += $price;
                         }
                     }
                     $total = $subtotal;
@@ -982,6 +992,18 @@ function wc_super_bundle_pro_init() {
     add_filter('woocommerce_cart_shipping_packages', 'wc_super_bundle_pro_shipping_packages');
     function wc_super_bundle_pro_shipping_packages($packages) {
         return $packages;
+    }
+
+    // Edit handling
+    add_action('template_redirect', 'wc_super_bundle_pro_handle_edit');
+    function wc_super_bundle_pro_handle_edit() {
+        if (isset($_GET['edit_bundle']) && is_product()) {
+            $cart_key = sanitize_text_field($_GET['edit_bundle']);
+            $cart_item = WC()->cart->get_cart_item($cart_key);
+            if ($cart_item && !empty($cart_item['super_bundle_pro_data']) && $cart_item['product_id'] == get_the_ID()) {
+                WC()->session->set('edit_bundle_pro_data_' . get_the_ID(), $cart_item['super_bundle_pro_data']);
+            }
+        }
     }
 
     // Settings (simplified)
