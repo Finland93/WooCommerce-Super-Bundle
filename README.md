@@ -2,11 +2,6 @@
 
 A powerful WooCommerce plugin to create customizable product bundles, including open bundles with flexible selections and closed bundles for fixed discount packs.
 
-- **Author**: Finland93
-- **License**: GPL-2.0
-- **GitHub Repository**: [https://github.com/Finland93](https://github.com/Finland93)
-- **Plugin Site**: [https://github.com/Finland93/WooCommerce-Super-Bundle](https://github.com/Finland93/WooCommerce-Super-Bundle)
-
 ## Description
 
 The **WooCommerce Super Bundle** plugin enhances your WooCommerce store by allowing sellers to create product bundles to boost sales and offer discounts. This plugin supports two types of bundles:
