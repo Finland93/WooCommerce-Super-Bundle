@@ -31,10 +31,9 @@ Unlike premium alternatives, this free WooCommerce bundles plugin delivers pro f
 1. Download the ZIP from [GitHub Releases](https://github.com/Finland93/WooCommerce-Super-Bundle/releases).
 2. In WordPress admin: Plugins > Add New > Upload Plugin > Select ZIP.
 3. Activate and ensure WooCommerce 8.0+ & PHP 7.4+ are active.
+4. Change the frontend texts in the WooCommerce settings under the “Super Bundle Translations” tab.
 
 No DB tweaks needed—ready in seconds!
-
-![Admin Setup Screenshot](assets/admin-tab.png "WooCommerce Super Bundle admin configuration for open/closed bundles")
 
 ## 🚀 Quick Start Guide
 
@@ -61,32 +60,6 @@ Customers interact via a clean form: checkboxes for open bundles, dropdowns for 
 - **Clearance Bundles:** Closed packs to clear stock quickly.
 - **Gift Sets:** Variations for personalized options.
 
-## 🧠 Requirements & Compatibility
-
-- WordPress: 5.0+
-- WooCommerce: 8.0+
-- PHP: 7.4+
-- HPOS: Fully supported.
-- Themes: Tested with Storefront, Astra, Elementor.
-
-## 🤝 Support & Contributions
-
-- Bugs: [GitHub Issues](https://github.com/Finland93/WooCommerce-Super-Bundle/issues).
-- Features: Discussions or PRs welcome.
-- Community: WordPress.org forums.
-
-Star this repo if it helps your store! ⭐
-
-## 📝 Changelog
-
-**v2.0.0 (Oct 2025)**  
-- Initial release: Checkbox selection, variation support, cart integration.  
-- Real-time pricing & validation.  
-
-Full details in [CHANGELOG.md](CHANGELOG.md).
-
 ## ⚖️ License
 
 GPL v2.0+. See [LICENSE](LICENSE).
-
-**Keywords:** WooCommerce bundles, free product bundling plugin, WooCommerce variation bundles, open bundle plugin, eCommerce bundling.
