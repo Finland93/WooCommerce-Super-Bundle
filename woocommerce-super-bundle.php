@@ -3,7 +3,7 @@
 Plugin Name: WooCommerce Super Bundle
 Plugin URI: https://github.com/Finland93/WooCommerce-Super-bundle
 Description: The ultimate WooCommerce bundle plugin inspired by the best features. Create customizable product bundles with fixed or dynamic pricing, discounts, variation support, and min/max quantity limits. Supports open and closed bundles for maximum flexibility.
-Version: 2.0.3
+Version: 2.0.4
 Author: Finland93
 Author URI: https://github.com/Finland93
 License: GPL-2.0
@@ -124,7 +124,7 @@ function wc_super_bundle_init() {
             'select_items_min_max' => __( 'Select %1$d to %2$d products', 'woocommerce-super-bundle' ),
             'select_items_min' => __( 'Select at least %d products', 'woocommerce-super-bundle' ),
             'fixed_bundle' => __( 'Fixed Bundle: %d products', 'woocommerce-super-bundle' ),
-            'total' => __( 'Bundle Total: ', 'woocommerce-super-bundle' ),
+            'total' => __( 'Bundlen hinta: ', 'woocommerce-super-bundle' ),
             'tuotteet_erikseen' => __( 'Tuotteet erikseen ostettuna ', 'woocommerce-super-bundle' ),
             'add_to_cart' => __( 'Add to Cart', 'woocommerce-super-bundle' ),
             'out_of_stock' => __( 'Out of stock', 'woocommerce-super-bundle' ),
@@ -172,7 +172,7 @@ function wc_super_bundle_init() {
             ],
             'total' => [
                 'title'             => __( 'Bundle total label', 'woocommerce-super-bundle' ),
-                'description'       => __( 'Default: Bundle Total: ', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Bundlen hinta: ', 'woocommerce-super-bundle' ),
                 'type'              => 'text',
                 'default'           => $defaults['total'],
                 'id'                => 'wc_super_bundle_translations[total]',
@@ -725,7 +725,7 @@ function wc_super_bundle_init() {
             'select_items_min_max' => __('Select %1$d to %2$d products', 'woocommerce-super-bundle'),
             'select_items_min' => __('Select at least %d products', 'woocommerce-super-bundle'),
             'fixed_bundle' => __('Fixed Bundle: %d products', 'woocommerce-super-bundle'),
-            'total' => __('Bundle Total: ', 'woocommerce-super-bundle'),
+            'total' => __('Bundlen hinta: ', 'woocommerce-super-bundle'),
             'tuotteet_erikseen' => __('Tuotteet erikseen ostettuna ', 'woocommerce-super-bundle'),
             'add_to_cart' => __('Add to Cart', 'woocommerce-super-bundle'),
             'out_of_stock' => __('Out of stock', 'woocommerce-super-bundle'),
@@ -776,7 +776,7 @@ function wc_super_bundle_init() {
             .bundle-variation-select { width: 100%; margin: 5px 0; }
             .bundle-item-price { font-weight: bold; color: #e74c3c; }
             .bundle-total { font-size: 1.3em; font-weight: bold; margin: 15px 0; color: #27ae60; }
-            .bundle-subtotal { font-size: 1.1em; margin: 10px 0; text-decoration: line-through; color: #999; }
+            .bundle-subtotal { font-size: 1.1em; margin: 10px 0; color: #999; }
             .bundle-message { margin: 10px 0; }
             .bundle-search { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
         </style>
@@ -784,8 +784,8 @@ function wc_super_bundle_init() {
             <div class="super-bundle">
                 <h3><?php echo esc_html($header_text); ?></h3>
                 <?php if ($bundle_type === 'open') : ?>
-                    <div id="bundle-subtotal-price" class="bundle-subtotal"><?php echo esc_html($translations['tuotteet_erikseen']); ?><span class="sub-price"><?php echo wc_price(0); ?></span></div>
                     <div id="bundle-total-price" class="bundle-total"><?php echo esc_html($translations['total']); ?><span class="price"><?php echo wc_price(0); ?></span></div>
+                    <div id="bundle-subtotal-price" class="bundle-subtotal"><?php echo esc_html($translations['tuotteet_erikseen']); ?><span class="sub-price"><?php echo wc_price(0); ?></span></div>
                     <input type="text" id="bundle_search" placeholder="<?php esc_attr_e('Search products...', 'woocommerce-super-bundle'); ?>" class="bundle-search">
                     <div class="bundle-items">
                         <?php foreach ($bundleducts as $index => $product_data) :
@@ -819,6 +819,7 @@ function wc_super_bundle_init() {
                     </div>
                     <button type="submit" name="add-to-cart" value="<?php echo esc_attr($bundle_id); ?>" class="single_add_to_cart_button button alt" disabled><?php echo esc_html($translations['add_to_cart']); ?></button>
                 <?php else : ?>
+                    <div class="bundle-total"><?php echo esc_html($translations['total']); ?><?php echo wc_price($closed_total); ?></div>
                     <div class="bundle-subtotal"><?php echo esc_html($translations['tuotteet_erikseen']); ?><?php echo wc_price($closed_subtotal); ?></div>
                     <ul class="bundle-closed-list">
                         <?php foreach ($bundleducts as $product_data) :
@@ -827,7 +828,6 @@ function wc_super_bundle_init() {
                             if ($p) echo '<li>' . esc_html($p->get_name()) . ' - ' . wc_price(floatval($p->get_price())) . '</li>';
                         endforeach; ?>
                     </ul>
-                    <div class="bundle-total"><?php echo esc_html($translations['total']); ?><?php echo wc_price($closed_total); ?></div>
                     <button type="submit" name="add-to-cart" value="<?php echo esc_attr($bundle_id); ?>" class="single_add_to_cart_button button alt"><?php echo esc_html($translations['add_to_cart']); ?></button>
                 <?php endif; ?>
                 <?php if (isset($_GET['edit_bundle'])) : ?>
@@ -849,16 +849,18 @@ function wc_super_bundle_init() {
                 var discountValue = <?php echo $discount_value; ?>;
                 var translations = <?php echo json_encode($translations); ?>;
                 var $container = $('.super-bundle');
-                var $subtotal = $container.find('.bundle-subtotal .sub-price');
                 var $total = $container.find('.bundle-total .price');
+                var $subtotal = $container.find('.bundle-subtotal .sub-price');
                 var $btn = $container.find('.single_add_to_cart_button');
                 var $search = $container.find('.bundle-search');
+                var $productPrice = $('.summary .price .amount');
                 var currencySymbol = '<?php echo get_woocommerce_currency_symbol(); ?>';
                 var decimals = <?php echo wc_get_price_decimals(); ?>;
                 var editData = <?php echo json_encode($edit_data); ?>;
 
                 function formatPrice(num) {
-                    return currencySymbol + num.toFixed(decimals);
+                    var formatted = num.toFixed(decimals).replace('.', ',');
+                    return '<bdi>' + formatted + '&nbsp;<span class="woocommerce-Price-currencySymbol">' + currencySymbol + '</span></bdi>';
                 }
 
                 function calculateTotal() {
@@ -890,6 +892,7 @@ function wc_super_bundle_init() {
                     }
                     total = Math.max(0, total);
                     $total.html(formatPrice(total));
+                    $productPrice.html(formatPrice(total));
 
                     // Validation
                     var error = '';
@@ -979,9 +982,16 @@ function wc_super_bundle_init() {
                                 $container.find('.bundle-variation-select[name="bundle_variations[' + pid + '][' + attr + ']"]').val(val).trigger('change');
                             });
                         });
+                        calculateTotal();
                     }, 100);
                 } else {
-                    calculateTotal();
+                    // Auto-select the cheapest min_items products to show starting prices
+                    var items = $container.find('.bundle-item').toArray().sort(function(a, b) {
+                        return parseFloat($(a).data('price')) - parseFloat($(b).data('price'));
+                    });
+                    for (var i = 0; i < minItems && i < items.length; i++) {
+                        $(items[i]).find('.bundle-qty-checkbox').prop('checked', true).trigger('change');
+                    }
                 }
 
                 // Init variation prices for checked items on load
