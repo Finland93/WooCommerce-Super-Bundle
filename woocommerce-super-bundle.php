@@ -3,7 +3,7 @@
 Plugin Name: WooCommerce Super Bundle
 Plugin URI: https://github.com/Finland93/WooCommerce-Super-bundle
 Description: The ultimate WooCommerce bundle plugin inspired by the best features. Create customizable product bundles with fixed or dynamic pricing, discounts, variation support, and min/max quantity limits. Supports open and closed bundles for maximum flexibility.
-Version: 2.0.4
+Version: 2.0.3
 Author: Finland93
 Author URI: https://github.com/Finland93
 License: GPL-2.0
@@ -124,8 +124,9 @@ function wc_super_bundle_init() {
             'select_items_min_max' => __( 'Select %1$d to %2$d products', 'woocommerce-super-bundle' ),
             'select_items_min' => __( 'Select at least %d products', 'woocommerce-super-bundle' ),
             'fixed_bundle' => __( 'Fixed Bundle: %d products', 'woocommerce-super-bundle' ),
-            'total' => __( 'Bundlen hinta: ', 'woocommerce-super-bundle' ),
-            'tuotteet_erikseen' => __( 'Tuotteet erikseen ostettuna ', 'woocommerce-super-bundle' ),
+            'total' => __( 'Price now: ', 'woocommerce-super-bundle' ),
+            'price_before' => __( 'Price before: ', 'woocommerce-super-bundle' ),
+            'include_text' => __( 'Include', 'woocommerce-super-bundle' ),
             'add_to_cart' => __( 'Add to Cart', 'woocommerce-super-bundle' ),
             'out_of_stock' => __( 'Out of stock', 'woocommerce-super-bundle' ),
             'min_total_error' => __( 'Total must be at least %s', 'woocommerce-super-bundle' ),
@@ -171,22 +172,31 @@ function wc_super_bundle_init() {
                 'placeholder'       => $defaults['fixed_bundle'],
             ],
             'total' => [
-                'title'             => __( 'Bundle total label', 'woocommerce-super-bundle' ),
-                'description'       => __( 'Default: Bundlen hinta: ', 'woocommerce-super-bundle' ),
+                'title'             => __( 'Bundle total label (Price now)', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Price now: ', 'woocommerce-super-bundle' ),
                 'type'              => 'text',
                 'default'           => $defaults['total'],
                 'id'                => 'wc_super_bundle_translations[total]',
                 'desc_tip'          => true,
                 'placeholder'       => $defaults['total'],
             ],
-            'tuotteet_erikseen' => [
-                'title'             => __( 'Products separately label', 'woocommerce-super-bundle' ),
-                'description'       => __( 'Default: Tuotteet erikseen ostettuna ', 'woocommerce-super-bundle' ),
+            'price_before' => [
+                'title'             => __( 'Products separately label (Price before)', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Price before: ', 'woocommerce-super-bundle' ),
                 'type'              => 'text',
-                'default'           => $defaults['tuotteet_erikseen'],
-                'id'                => 'wc_super_bundle_translations[tuotteet_erikseen]',
+                'default'           => $defaults['price_before'],
+                'id'                => 'wc_super_bundle_translations[price_before]',
                 'desc_tip'          => true,
-                'placeholder'       => $defaults['tuotteet_erikseen'],
+                'placeholder'       => $defaults['price_before'],
+            ],
+            'include_text' => [
+                'title'             => __( 'Include checkbox label', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Include', 'woocommerce-super-bundle' ),
+                'type'              => 'text',
+                'default'           => $defaults['include_text'],
+                'id'                => 'wc_super_bundle_translations[include_text]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['include_text'],
             ],
             'add_to_cart' => [
                 'title'             => __( 'Add to cart button', 'woocommerce-super-bundle' ),
@@ -725,8 +735,9 @@ function wc_super_bundle_init() {
             'select_items_min_max' => __('Select %1$d to %2$d products', 'woocommerce-super-bundle'),
             'select_items_min' => __('Select at least %d products', 'woocommerce-super-bundle'),
             'fixed_bundle' => __('Fixed Bundle: %d products', 'woocommerce-super-bundle'),
-            'total' => __('Bundlen hinta: ', 'woocommerce-super-bundle'),
-            'tuotteet_erikseen' => __('Tuotteet erikseen ostettuna ', 'woocommerce-super-bundle'),
+            'total' => __('Price now: ', 'woocommerce-super-bundle'),
+            'price_before' => __('Price before: ', 'woocommerce-super-bundle'),
+            'include_text' => __('Include', 'woocommerce-super-bundle'),
             'add_to_cart' => __('Add to Cart', 'woocommerce-super-bundle'),
             'out_of_stock' => __('Out of stock', 'woocommerce-super-bundle'),
             'min_total_error' => __('Total must be at least %s', 'woocommerce-super-bundle'),
@@ -785,7 +796,7 @@ function wc_super_bundle_init() {
                 <h3><?php echo esc_html($header_text); ?></h3>
                 <?php if ($bundle_type === 'open') : ?>
                     <div id="bundle-total-price" class="bundle-total"><?php echo esc_html($translations['total']); ?><span class="price"><?php echo wc_price(0); ?></span></div>
-                    <div id="bundle-subtotal-price" class="bundle-subtotal"><?php echo esc_html($translations['tuotteet_erikseen']); ?><span class="sub-price"><?php echo wc_price(0); ?></span></div>
+                    <div id="bundle-subtotal-price" class="bundle-subtotal"><?php echo esc_html($translations['price_before']); ?><span class="sub-price"><?php echo wc_price(0); ?></span></div>
                     <input type="text" id="bundle_search" placeholder="<?php esc_attr_e('Search products...', 'woocommerce-super-bundle'); ?>" class="bundle-search">
                     <div class="bundle-items">
                         <?php foreach ($bundleducts as $index => $product_data) :
@@ -801,7 +812,7 @@ function wc_super_bundle_init() {
                                 <img src="<?php echo wp_get_attachment_image_src($p->get_image_id(), 'thumbnail')[0] ?? wc_placeholder_img_src(); ?>" alt="<?php echo esc_attr($p->get_name()); ?>" class="bundle-item-image">
                                 <div class="bundle-item-header"><?php echo esc_html($p->get_name()); ?></div>
                                 <div class="bundle-item-price"><?php echo $base_price_html; ?></div>
-                                <label><input type="checkbox" class="bundle-qty-checkbox" name="bundle_quantities[<?php echo $p_id; ?>]" value="1" <?php checked($selected, 1); ?> <?php echo $p->is_in_stock() ? '' : 'disabled'; ?>> Include</label>
+                                <label><input type="checkbox" class="bundle-qty-checkbox" name="bundle_quantities[<?php echo $p_id; ?>]" value="1" <?php checked($selected, 1); ?> <?php echo $p->is_in_stock() ? '' : 'disabled'; ?>> <?php echo esc_html($translations['include_text']); ?></label>
                                 <?php if ($p->is_type('variable')) :
                                     $attributes = $p->get_variation_attributes();
                                     foreach ($attributes as $attr_key => $options) :
@@ -820,7 +831,7 @@ function wc_super_bundle_init() {
                     <button type="submit" name="add-to-cart" value="<?php echo esc_attr($bundle_id); ?>" class="single_add_to_cart_button button alt" disabled><?php echo esc_html($translations['add_to_cart']); ?></button>
                 <?php else : ?>
                     <div class="bundle-total"><?php echo esc_html($translations['total']); ?><?php echo wc_price($closed_total); ?></div>
-                    <div class="bundle-subtotal"><?php echo esc_html($translations['tuotteet_erikseen']); ?><?php echo wc_price($closed_subtotal); ?></div>
+                    <div class="bundle-subtotal"><?php echo esc_html($translations['price_before']); ?><?php echo wc_price($closed_subtotal); ?></div>
                     <ul class="bundle-closed-list">
                         <?php foreach ($bundleducts as $product_data) :
                             $p_id = $product_data['id'];
