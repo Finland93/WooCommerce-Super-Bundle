@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: WooCommerce Super Bundle Pro
+Plugin Name: WooCommerce Super Bundle
 Plugin URI: https://github.com/Finland93/WooCommerce-Super-Bundle-Pro
 Description: The ultimate WooCommerce bundle plugin inspired by the best features. Create customizable product bundles with fixed or dynamic pricing, discounts, variation support, and min/max quantity limits. Supports open and closed bundles for maximum flexibility.
 Version: 2.0.0
@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 // PHP version check
 if (version_compare(PHP_VERSION, '7.4', '<')) {
     add_action('admin_notices', function() {
-        echo '<div class="error"><p>' . esc_html__('WooCommerce Super Bundle Pro requires PHP 7.4 or higher.', 'woocommerce-super-bundle-pro') . '</p></div>';
+        echo '<div class="error"><p>' . esc_html__('WooCommerce Super Bundle requires PHP 7.4 or higher.', 'woocommerce-super-bundle-pro') . '</p></div>';
     });
     return;
 }
@@ -32,7 +32,7 @@ if (version_compare(PHP_VERSION, '7.4', '<')) {
 // Check if WooCommerce is active
 if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
     add_action('admin_notices', function() {
-        echo '<div class="error"><p>' . esc_html__('WooCommerce Super Bundle Pro requires WooCommerce to be installed and active.', 'woocommerce-super-bundle-pro') . '</p></div>';
+        echo '<div class="error"><p>' . esc_html__('WooCommerce Super Bundle requires WooCommerce to be installed and active.', 'woocommerce-super-bundle-pro') . '</p></div>';
     });
     return;
 }
