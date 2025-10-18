@@ -1005,26 +1005,4 @@ function wc_super_bundle_init() {
             }
         }
     }
-
-    // Settings (simplified)
-    add_filter('woocommerce_settings_tabs_array', function($tabs) {
-        $tabs['super-bundle'] = __('Super bundle', 'woocommerce-super-bundle');
-        return $tabs;
-    }, 50);
-
-    add_action('woocommerce_settings_tabs_super-bundle', function() {
-        woocommerce_admin_fields(wc_super_bundle_get_settings());
-    });
-
-    add_action('woocommerce_update_options_super-bundle', 'wc_super_bundle_update_settings');
-    function wc_super_bundle_update_settings() {
-        woocommerce_update_options(wc_super_bundle_get_settings());
-    }
-
-    function wc_super_bundle_get_settings() {
-        return [
-            'title' => ['title' => __('Settings', 'woocommerce-super-bundle'), 'type' => 'title'],
-            'end' => ['type' => 'sectionend'],
-        ];
-    }
 }
