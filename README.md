@@ -1,65 +1,118 @@
-# WooCommerce Super Bundle 
-**The Best Free WooCommerce Product Bundling Plugin for Dynamic Bundles**
+# 🧩 WooCommerce Super Bundle  
+**The Ultimate Free Product Bundling Plugin for WooCommerce — Dynamic, Powerful & 100% Free Forever**
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-orange.svg)  
-![Tested with WooCommerce](https://img.shields.io/badge/WooCommerce-8.0%2B-green.svg)  
+![WooCommerce](https://img.shields.io/badge/Tested%20with-WooCommerce%208.0%2B-green.svg)  
 ![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-blue.svg)  
 ![License](https://img.shields.io/badge/License-GPL%20v2%2B-red.svg)
 
-## 🚀 Overview  
-**WooCommerce Super Bundle Pro** is the ultimate free and open-source WooCommerce bundle plugin, perfect for eCommerce stores aiming to increase average order value (AOV) through customizable product bundles. Effortlessly create dynamic open bundles (customer-selected items with min/max limits) or closed bundles (fixed packages) with built-in discounts, full variation support, and real-time pricing updates. Ideal for upselling, cross-selling, and boosting conversions in WooCommerce—no subscriptions or premium upsells required.
+---
 
-This lightweight, SEO-optimized plugin is fully compatible with the latest WooCommerce versions. Set up bundles in minutes without coding and watch your sales grow!
+## 🚀 What Is WooCommerce Super Bundle?
 
-## 🔑 Key Features
+**WooCommerce Super Bundle** helps you sell more by turning ordinary products into **powerful custom bundles** — all without paying for a premium plugin.  
 
-- **Customizable Bundles:** Build open bundles where customers pick from products (with min/max quantity limits) or closed bundles for quick, fixed purchases.
-- **Smart Pricing:** Fixed bundle pricing or auto-calculated sums with % or fixed discounts—updates live on the frontend.
-- **Variation Support:** Seamless integration with WooCommerce variable products (e.g., select size/color in bundles).
-- **Min/Max Constraints:** Set item or value limits to control bundles (e.g., 2-5 items max).
-- **Stock & Validation:** Instant stock checks, out-of-stock alerts, and form validation for error-free shopping.
-- **Cart Integration:** View bundle contents in cart (editable on product page only). Options for bundled or individual shipping/taxes.
-- **Mobile-Responsive:** Intuitive UI that shines on desktops, tablets, and phones.
-- **Developer-Friendly:** Extensive hooks/filters using WooCommerce core—no bloat.
+Whether you want **open bundles** (where customers choose items within limits) or **closed bundles** (predefined product sets), this plugin delivers everything you need to **increase Average Order Value (AOV)**, **boost conversions**, and **create flexible offers** — all inside WooCommerce.
 
-## 🎯 Why Choose WooCommerce Super Bundle Pro?
+Built for speed, simplicity, and compatibility, Super Bundle gives you pro-level control over pricing, variations, discounts, and inventory—without the clutter or license keys.
 
-Unlike premium alternatives, this free WooCommerce bundles plugin delivers pro features without ongoing costs. Great for dropshipping, digital downloads, physical goods, or any WooCommerce store.
+---
+
+## 💸 Why It’s 100% Free Forever
+
+Super Bundle is released under the **GPL v2+ license**, meaning:
+- ✅ **Open Source** — you can use, modify, and share it freely.  
+- 🚫 **No paid upgrades, trials, or upsells.** Ever.  
+- ❤️ Built by developers who believe **core eCommerce tools should stay free** and accessible to everyone, especially small businesses and solo store owners.
+
+If you like it, just star ⭐ the repo or contribute via pull requests — that’s the only “payment” we ask.
+
+---
+
+## 🔑 Core Features
+
+- 🧱 **Dynamic Bundles** — Create open or closed bundles in minutes.  
+- 💰 **Smart Pricing & Discounts** — Fixed price or auto-calculated totals with % or fixed discounts.  
+- 🎨 **Full Variation Support** — Customers can select size, color, etc. directly inside bundles.  
+- 🔒 **Min/Max Controls** — Set quantity or total item limits (e.g., “Pick 3–5 items”).  
+- ⚙️ **Stock Validation** — Automatic checks to prevent out-of-stock additions.  
+- 🛒 **Cart Integration** — Bundles appear as a single product with optional breakdown view.  
+- 📱 **Mobile-Optimized UI** — Looks clean on all devices.  
+- 🧩 **Developer-Ready Hooks** — Extend or customize via WooCommerce core filters.  
+- 🚀 **Lightweight & SEO-Friendly** — No extra scripts, no page slowdowns.
+
+---
+
+## 🏆 Why Choose Super Bundle Over Paid Plugins?
+
+| Feature | Super Bundle | Premium Alternatives |
+|----------|---------------|----------------------|
+| Dynamic open bundles | ✅ Yes | 💸 Paid tier |
+| Live price updates | ✅ Yes | 💸 Paid tier |
+| Variation support | ✅ Yes | 💸 Paid tier |
+| Unlimited bundles | ✅ Yes | ❌ Limited |
+| 100% free license | ✅ Forever | ❌ Subscription |
+
+**Bottom line:** You get pro-level functionality without paying $49–$199/year for what should’ve been free.
+
+---
 
 ## ⚙️ Installation
 
-1. Download the ZIP from [GitHub Releases](https://github.com/Finland93/WooCommerce-Super-Bundle/releases).
-2. In WordPress admin: Plugins > Add New > Upload Plugin > Select ZIP.
-3. Activate and ensure WooCommerce 8.0+ & PHP 7.4+ are active.
-4. Change the frontend texts in the WooCommerce settings under the “Super Bundle Translations” tab.
+1. Download the latest ZIP from [Releases](https://github.com/Finland93/WooCommerce-Super-Bundle/releases).  
+2. In WordPress Admin → **Plugins > Add New > Upload Plugin** → Select ZIP → **Activate**.  
+3. Make sure WooCommerce 8.0+ and PHP 7.4+ are active.  
+4. (Optional) Change all frontend labels under **WooCommerce → Settings → Super Bundle Translations**.
 
-No DB tweaks needed—ready in seconds!
+No database edits or setup wizards. Just activate and start bundling.
+
+---
 
 ## 🚀 Quick Start Guide
 
-### Creating a Bundle (Admin Setup)
+### 1. Create Your First Bundle
 
-1. Products > Add New > Select "Super Bundle Pro" type.
-2. In Super Bundle tab:
-   - Bundle Type: Open (selectable) or Closed (fixed).
-   - Price Mode: Auto (sum + discount) or Fixed.
-   - Add Products: Search/select items/variations (no duplicates).
-   - Set Min/Max & Discounts.
-3. Publish!
+- Go to **Products → Add New → Product Type: Super Bundle**.  
+- Configure bundle type (**Open** or **Closed**).  
+- Choose price mode (**Auto with discount** or **Fixed**).  
+- Add products/variations, set min/max limits, and publish.
 
-### Frontend Experience
+### 2. Customer Experience
 
-Customers interact via a clean form: checkboxes for open bundles, dropdowns for variations, live totals, and validation (e.g., "Add 2+ items"). Adds to cart as a single bundle item.
+Your customers will see:
+- ✅ A clean, interactive selection form.  
+- 📊 Live price totals.  
+- 🧮 Validation (e.g., “Add at least 2 items”).  
+- 🛒 Single bundled product in the cart.
 
-![Cart View](assets/cart-bundle.png "Bundled products in WooCommerce cart with edit option")
+![Cart View](assets/cart-bundle.png "Example: Bundled products displayed in WooCommerce cart")
 
-## 💼 Use Cases
+---
 
-- **Upsell Kits:** Pair complementary products for higher AOV.
-- **Subscription Boxes:** Customizable open bundles for recurring orders.
-- **Clearance Bundles:** Closed packs to clear stock quickly.
-- **Gift Sets:** Variations for personalized options.
+## 💼 Perfect For
+
+- 🧴 **Gift Sets & Product Kits** – Personalized bundles for any niche.  
+- 📦 **Subscription Boxes** – Let customers build their own recurring boxes.  
+- 🔥 **Clearance or Seasonal Sales** – Combine products to move stock fast.  
+- 💡 **Upsell & Cross-Sell Offers** – Boost AOV instantly.
+
+---
 
 ## ⚖️ License
 
-GPL v2.0+. See [LICENSE](LICENSE).
+Released under **GPL v2.0+**.  
+You’re free to use, modify, and distribute this plugin.  
+See [LICENSE](LICENSE) for details.
+
+---
+
+### 💬 Support & Contributions
+
+This project stays free thanks to community feedback.  
+- 🐞 Report bugs or suggest features via [Issues](https://github.com/Finland93/WooCommerce-Super-Bundle/issues).  
+- ⭐ Star the repo if you find it valuable.  
+- 🤝 Pull requests are always welcome!
+
+---
+
+> **WooCommerce Super Bundle** — The smart, open-source alternative to overpriced bundle plugins.
