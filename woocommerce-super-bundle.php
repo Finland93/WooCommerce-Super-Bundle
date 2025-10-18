@@ -9,11 +9,6 @@ Author URI: https://github.com/Finland93
 License: GPL-2.0
 License URI: https://www.gnu.org/licenses/gpl-2.0.txt
 Text Domain: woocommerce-super-bundle
-Requires PHP: 7.4
-Requires at least: 5.0
-Tested up to: 6.6
-WC requires at least: 8.0
-WC tested up to: 9.0
 */
 
 // Prevent direct access
