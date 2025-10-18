@@ -1,4 +1,4 @@
-# WooCommerce Super Bundle Pro  
+# WooCommerce Super Bundle 
 **The Best Free WooCommerce Product Bundling Plugin for Dynamic Bundles**
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-orange.svg)  
@@ -34,14 +34,14 @@ Unlike premium alternatives, this free WooCommerce bundles plugin delivers pro f
 
 No DB tweaks needed—ready in seconds!
 
-![Admin Setup Screenshot](assets/admin-tab.png "WooCommerce Super Bundle Pro admin configuration for open/closed bundles")
+![Admin Setup Screenshot](assets/admin-tab.png "WooCommerce Super Bundle admin configuration for open/closed bundles")
 
 ## 🚀 Quick Start Guide
 
 ### Creating a Bundle (Admin Setup)
 
 1. Products > Add New > Select "Super Bundle Pro" type.
-2. In Super Bundle Pro tab:
+2. In Super Bundle tab:
    - Bundle Type: Open (selectable) or Closed (fixed).
    - Price Mode: Auto (sum + discount) or Fixed.
    - Add Products: Search/select items/variations (no duplicates).
