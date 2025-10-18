@@ -3,7 +3,7 @@
 Plugin Name: WooCommerce Super Bundle
 Plugin URI: https://github.com/Finland93/WooCommerce-Super-bundle
 Description: The ultimate WooCommerce bundle plugin inspired by the best features. Create customizable product bundles with fixed or dynamic pricing, discounts, variation support, and min/max quantity limits. Supports open and closed bundles for maximum flexibility.
-Version: 2.0.5
+Version: 2.1.0
 Author: Finland93
 Author URI: https://github.com/Finland93
 License: GPL-2.0
@@ -127,6 +127,7 @@ function wc_super_bundle_init() {
             'total' => __( 'Price now: ', 'woocommerce-super-bundle' ),
             'price_before' => __( 'Price before: ', 'woocommerce-super-bundle' ),
             'include_text' => __( 'Include', 'woocommerce-super-bundle' ),
+            'bundle_contents' => __( 'Bundle Contents', 'woocommerce-super-bundle' ),
             'add_to_cart' => __( 'Add to Cart', 'woocommerce-super-bundle' ),
             'out_of_stock' => __( 'Out of stock', 'woocommerce-super-bundle' ),
             'min_total_error' => __( 'Total must be at least %s', 'woocommerce-super-bundle' ),
@@ -198,6 +199,15 @@ function wc_super_bundle_init() {
                 'desc_tip'          => true,
                 'placeholder'       => $defaults['include_text'],
             ],
+            'bundle_contents' => [
+                'title'             => __( 'Bundle contents label (in cart)', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Bundle Contents', 'woocommerce-super-bundle' ),
+                'type'              => 'text',
+                'default'           => $defaults['bundle_contents'],
+                'id'                => 'wc_super_bundle_translations[bundle_contents]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['bundle_contents'],
+            ],
             'add_to_cart' => [
                 'title'             => __( 'Add to cart button', 'woocommerce-super-bundle' ),
                 'description'       => __( 'Default: Add to Cart', 'woocommerce-super-bundle' ),
@@ -266,6 +276,47 @@ function wc_super_bundle_init() {
                 'id' => 'super_bundle_translation_options'
             ],
         ] );
+    }
+
+    // Enqueue frontend assets for cart
+    add_action('wp_enqueue_scripts', 'wc_super_bundle_frontend_assets');
+    function wc_super_bundle_frontend_assets() {
+        if (is_cart() || is_checkout()) {
+            wp_add_inline_style('woocommerce-general', '
+                .woocommerce .cart .wc-item-meta,
+                .woocommerce-cart .wc-item-meta,
+                .woocommerce-checkout .wc-item-meta {
+                    display: block !important;
+                    margin: 0 0 0.5em 0 !important;
+                    padding: 0 !important;
+                }
+                .woocommerce dl.variation dt,
+                .woocommerce-cart dl.variation dt,
+                .woocommerce-checkout dl.variation dt {
+                    font-weight: bold;
+                    margin: 0 0 0.25em 0 !important;
+                    display: inline-block;
+                    min-width: 100px;
+                }
+                .woocommerce dl.variation dd,
+                .woocommerce-cart dl.variation dd,
+                .woocommerce-checkout dl.variation dd {
+                    margin: 0 0 0.5em 0 !important;
+                    padding-left: 0 !important;
+                }
+                .woocommerce ul.wc-item-meta li {
+                    margin: 0 0 0.25em 0;
+                    list-style: none;
+                    padding: 0;
+                }
+                .woocommerce .cart .variation-BundleContents,
+                .woocommerce-cart .variation-BundleContents,
+                .woocommerce-checkout .variation-BundleContents {
+                    font-size: 0.9em;
+                    color: #666;
+                }
+            ');
+        }
     }
 
     // Enqueue admin assets
@@ -738,6 +789,7 @@ function wc_super_bundle_init() {
             'total' => __('Price now: ', 'woocommerce-super-bundle'),
             'price_before' => __('Price before: ', 'woocommerce-super-bundle'),
             'include_text' => __('Include', 'woocommerce-super-bundle'),
+            'bundle_contents' => __('Bundle Contents', 'woocommerce-super-bundle'),
             'add_to_cart' => __('Add to Cart', 'woocommerce-super-bundle'),
             'out_of_stock' => __('Out of stock', 'woocommerce-super-bundle'),
             'min_total_error' => __('Total must be at least %s', 'woocommerce-super-bundle'),
@@ -910,7 +962,7 @@ function wc_super_bundle_init() {
                     if (totalQty < minItems) error = translations.min_items_error.replace('%d', minItems);
                     else if (maxItems > 0 && totalQty > maxItems) error = translations.max_items_error.replace('%d', maxItems);
                     else if (minTotal > 0 && total < minTotal) error = translations.min_total_error.replace('%s', formatPrice(minTotal));
-                    else if (maxTotal > 0 && total > maxTotal) error = translations.max_total_error.replace('%s', formatPrice(maxTotal));
+                    else if (maxTotal > 0 && maxTotal > total) error = translations.max_total_error.replace('%s', formatPrice(maxTotal));
                     else if (incomplete) error = translations.select_variation;
 
                     $container.find('.bundle-message').remove();
@@ -1012,6 +1064,8 @@ function wc_super_bundle_init() {
                         updateVariationPrice($item);
                     }
                 });
+
+                calculateTotal();
             });
         </script>
         <?php endif;
@@ -1173,6 +1227,10 @@ function wc_super_bundle_init() {
     add_filter('woocommerce_get_item_data', 'wc_super_bundle_get_item_data', 10, 2);
     function wc_super_bundle_get_item_data($item_data, $cart_item) {
         if (!empty($cart_item['super_bundle_data'])) {
+            $defaults = [
+                'bundle_contents' => __('Bundle Contents', 'woocommerce-super-bundle'),
+            ];
+            $translations = wp_parse_args( get_option('wc_super_bundle_translations', $defaults), $defaults );
             $contents = '<ul class="wc-item-meta">';
             $quantities = $cart_item['super_bundle_data']['quantities'];
             $variations = $cart_item['super_bundle_data']['variations'];
@@ -1194,7 +1252,7 @@ function wc_super_bundle_init() {
             }
             $contents .= '</ul>';
             $item_data[] = [
-                'name' => __('Bundle Contents', 'woocommerce-super-bundle'),
+                'name' => $translations['bundle_contents'],
                 'value' => $contents,
             ];
         }
