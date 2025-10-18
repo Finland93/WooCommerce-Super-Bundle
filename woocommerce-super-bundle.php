@@ -3,7 +3,7 @@
 Plugin Name: WooCommerce Super Bundle
 Plugin URI: https://github.com/Finland93/WooCommerce-Super-bundle
 Description: The ultimate WooCommerce bundle plugin inspired by the best features. Create customizable product bundles with fixed or dynamic pricing, discounts, variation support, and min/max quantity limits. Supports open and closed bundles for maximum flexibility.
-Version: 2.0.0
+Version: 2.0.1
 Author: Finland93
 Author URI: https://github.com/Finland93
 License: GPL-2.0
@@ -100,6 +100,152 @@ add_action('plugins_loaded', 'wc_super_bundle_init', 11);
 function wc_super_bundle_init() {
     if (!class_exists('WC_Product')) {
         return;
+    }
+
+    // Add settings tab for translations
+    add_filter( 'woocommerce_settings_tabs_array', 'wc_super_bundle_add_settings_tab', 50 );
+    function wc_super_bundle_add_settings_tab( $settings_tabs ) {
+        $settings_tabs['super_bundle_translations'] = __( 'Super Bundle Translations', 'woocommerce-super-bundle' );
+        return $settings_tabs;
+    }
+
+    add_action( 'woocommerce_settings_tabs_super_bundle_translations', 'wc_super_bundle_translation_settings' );
+    function wc_super_bundle_translation_settings() {
+        woocommerce_admin_fields( wc_super_bundle_get_translation_settings() );
+    }
+
+    add_action( 'woocommerce_update_options_super_bundle_translations', 'wc_super_bundle_update_translation_settings' );
+    function wc_super_bundle_update_translation_settings() {
+        woocommerce_update_options( wc_super_bundle_get_translation_settings() );
+    }
+
+    function wc_super_bundle_get_translation_settings() {
+        $defaults = [
+            'select_items_min_max' => __( 'Select %1$d to %2$d products', 'woocommerce-super-bundle' ),
+            'select_items_min' => __( 'Select at least %d products', 'woocommerce-super-bundle' ),
+            'fixed_bundle' => __( 'Fixed Bundle: %d products', 'woocommerce-super-bundle' ),
+            'total' => __( 'Bundle Total: ', 'woocommerce-super-bundle' ),
+            'add_to_cart' => __( 'Add to Cart', 'woocommerce-super-bundle' ),
+            'out_of_stock' => __( 'Out of stock', 'woocommerce-super-bundle' ),
+            'min_total_error' => __( 'Total must be at least %s', 'woocommerce-super-bundle' ),
+            'max_total_error' => __( 'Total cannot exceed %s', 'woocommerce-super-bundle' ),
+            'min_items_error' => __( 'Select at least %d products', 'woocommerce-super-bundle' ),
+            'max_items_error' => __( 'Cannot select more than %d products', 'woocommerce-super-bundle' ),
+            'select_variation' => __( 'Please select all variations.', 'woocommerce-super-bundle' ),
+        ];
+        $translations = get_option( 'wc_super_bundle_translations', $defaults );
+
+        return apply_filters( 'woocommerce_super_bundle_translation_settings', [
+            'section_title' => [
+                'title' => __( 'Frontend Texts', 'woocommerce-super-bundle' ),
+                'type'  => 'title',
+                'desc'  => __( 'Customize the texts shown to customers in the bundle builder. Use placeholders like %d for numbers or %s for prices.', 'woocommerce-super-bundle' ),
+                'id'    => 'super_bundle_translation_options'
+            ],
+            'select_items_min_max' => [
+                'title'             => __( 'Select items min-max (Open bundle with max)', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Select %1$d to %2$d products', 'woocommerce-super-bundle' ),
+                'type'              => 'text',
+                'default'           => $defaults['select_items_min_max'],
+                'id'                => 'wc_super_bundle_translations[select_items_min_max]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['select_items_min_max'],
+            ],
+            'select_items_min' => [
+                'title'             => __( 'Select items min (Open bundle unlimited)', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Select at least %d products', 'woocommerce-super-bundle' ),
+                'type'              => 'text',
+                'default'           => $defaults['select_items_min'],
+                'id'                => 'wc_super_bundle_translations[select_items_min]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['select_items_min'],
+            ],
+            'fixed_bundle' => [
+                'title'             => __( 'Fixed bundle header', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Fixed Bundle: %d products', 'woocommerce-super-bundle' ),
+                'type'              => 'text',
+                'default'           => $defaults['fixed_bundle'],
+                'id'                => 'wc_super_bundle_translations[fixed_bundle]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['fixed_bundle'],
+            ],
+            'total' => [
+                'title'             => __( 'Bundle total label', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Bundle Total: ', 'woocommerce-super-bundle' ),
+                'type'              => 'text',
+                'default'           => $defaults['total'],
+                'id'                => 'wc_super_bundle_translations[total]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['total'],
+            ],
+            'add_to_cart' => [
+                'title'             => __( 'Add to cart button', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Add to Cart', 'woocommerce-super-bundle' ),
+                'type'              => 'text',
+                'default'           => $defaults['add_to_cart'],
+                'id'                => 'wc_super_bundle_translations[add_to_cart]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['add_to_cart'],
+            ],
+            'out_of_stock' => [
+                'title'             => __( 'Out of stock message', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Out of stock', 'woocommerce-super-bundle' ),
+                'type'              => 'text',
+                'default'           => $defaults['out_of_stock'],
+                'id'                => 'wc_super_bundle_translations[out_of_stock]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['out_of_stock'],
+            ],
+            'min_total_error' => [
+                'title'             => __( 'Min total error', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Total must be at least %s', 'woocommerce-super-bundle' ),
+                'type'              => 'textarea',
+                'default'           => $defaults['min_total_error'],
+                'id'                => 'wc_super_bundle_translations[min_total_error]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['min_total_error'],
+            ],
+            'max_total_error' => [
+                'title'             => __( 'Max total error', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Total cannot exceed %s', 'woocommerce-super-bundle' ),
+                'type'              => 'textarea',
+                'default'           => $defaults['max_total_error'],
+                'id'                => 'wc_super_bundle_translations[max_total_error]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['max_total_error'],
+            ],
+            'min_items_error' => [
+                'title'             => __( 'Min items error', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Select at least %d products', 'woocommerce-super-bundle' ),
+                'type'              => 'textarea',
+                'default'           => $defaults['min_items_error'],
+                'id'                => 'wc_super_bundle_translations[min_items_error]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['min_items_error'],
+            ],
+            'max_items_error' => [
+                'title'             => __( 'Max items error', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Cannot select more than %d products', 'woocommerce-super-bundle' ),
+                'type'              => 'textarea',
+                'default'           => $defaults['max_items_error'],
+                'id'                => 'wc_super_bundle_translations[max_items_error]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['max_items_error'],
+            ],
+            'select_variation' => [
+                'title'             => __( 'Select variations error', 'woocommerce-super-bundle' ),
+                'description'       => __( 'Default: Please select all variations.', 'woocommerce-super-bundle' ),
+                'type'              => 'textarea',
+                'default'           => $defaults['select_variation'],
+                'id'                => 'wc_super_bundle_translations[select_variation]',
+                'desc_tip'          => true,
+                'placeholder'       => $defaults['select_variation'],
+            ],
+            'section_end' => [
+                'type' => 'sectionend',
+                'id' => 'super_bundle_translation_options'
+            ],
+        ] );
     }
 
     // Enqueue admin assets
@@ -549,7 +695,7 @@ function wc_super_bundle_init() {
         $discount_value = floatval(get_post_meta($bundle_id, '_bundle_discount_value', true)) ?: 0;
         $shipping_method = get_post_meta($bundle_id, '_bundle_shipping_method', true) ?: 'bundled';
 
-        $translations = get_option('wc_super_bundle_translations', [
+        $defaults = [
             'select_items_min_max' => __('Select %1$d to %2$d products', 'woocommerce-super-bundle'),
             'select_items_min' => __('Select at least %d products', 'woocommerce-super-bundle'),
             'fixed_bundle' => __('Fixed Bundle: %d products', 'woocommerce-super-bundle'),
@@ -561,7 +707,8 @@ function wc_super_bundle_init() {
             'min_items_error' => __('Select at least %d products', 'woocommerce-super-bundle'),
             'max_items_error' => __('Cannot select more than %d products', 'woocommerce-super-bundle'),
             'select_variation' => __('Please select all variations.', 'woocommerce-super-bundle'),
-        ]);
+        ];
+        $translations = wp_parse_args( get_option('wc_super_bundle_translations', $defaults), $defaults );
 
         $edit_data = [];
         if (WC()->session) {
@@ -1000,4 +1147,5 @@ function wc_super_bundle_init() {
             }
         }
     }
+
 }
