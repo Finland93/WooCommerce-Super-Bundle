@@ -85,8 +85,6 @@ Your customers will see:
 - 🧮 Validation (e.g., “Add at least 2 items”).  
 - 🛒 Single bundled product in the cart.
 
-![Cart View](assets/cart-bundle.png "Example: Bundled products displayed in WooCommerce cart")
-
 ---
 
 ## 💼 Perfect For
