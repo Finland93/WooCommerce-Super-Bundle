@@ -96,6 +96,17 @@ Your customers will see:
 
 ---
 
+## 🛠️ Changelog
+
+### 2.1.1
+- **Fixed a fatal error** when adding a *closed* bundle to the cart while one of its products had been deleted (`get_name()` was called on a missing product). The product name now falls back to its ID.
+- **No more 404s in the admin:** `admin.css` / `admin.js` are now only enqueued if those files exist. The bundle meta-box JavaScript is inlined, so editing works without them.
+- **Hardening:** the variation-price AJAX handler now unslashes and sanitizes its nonce and inputs.
+
+> Note: this package ships `admin.css` / `admin.js` references but not the files themselves. If you maintain those assets in your build, drop them into the plugin folder and they'll load automatically.
+
+---
+
 ## ⚖️ License
 
 Released under **GPL v2.0+**.  

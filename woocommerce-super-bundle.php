@@ -3,7 +3,7 @@
 Plugin Name: WooCommerce Super Bundle
 Plugin URI: https://github.com/Finland93/WooCommerce-Super-bundle
 Description: The ultimate WooCommerce bundle plugin inspired by the best features. Create customizable product bundles with fixed or dynamic pricing, discounts, variation support, and min/max quantity limits. Supports open and closed bundles for maximum flexibility.
-Version: 2.1.0
+Version: 2.1.1
 Author: Finland93
 Author URI: https://github.com/Finland93
 License: GPL-2.0
@@ -325,8 +325,14 @@ function wc_super_bundle_init() {
         if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
         global $post;
         if ($post->post_type !== 'product') return;
-        wp_enqueue_style('wc-super-bundle-admin', plugin_dir_url(__FILE__) . 'admin.css', [], '2.0.3');
-        wp_enqueue_script('wc-super-bundle-admin', plugin_dir_url(__FILE__) . 'admin.js', ['jquery'], '2.0.3', true);
+        // Only enqueue if the files exist. The bundle meta-box JS is inlined
+        // below, so the plugin works even without these external assets.
+        if (file_exists(plugin_dir_path(__FILE__) . 'admin.css')) {
+            wp_enqueue_style('wc-super-bundle-admin', plugin_dir_url(__FILE__) . 'admin.css', [], '2.1.1');
+        }
+        if (file_exists(plugin_dir_path(__FILE__) . 'admin.js')) {
+            wp_enqueue_script('wc-super-bundle-admin', plugin_dir_url(__FILE__) . 'admin.js', ['jquery'], '2.1.1', true);
+        }
     }
 
     // Custom product class
@@ -1075,11 +1081,12 @@ function wc_super_bundle_init() {
     add_action('wp_ajax_wc_super_bundle_get_variation_price', 'wc_super_bundle_ajax_get_variation_price');
     add_action('wp_ajax_nopriv_wc_super_bundle_get_variation_price', 'wc_super_bundle_ajax_get_variation_price');
     function wc_super_bundle_ajax_get_variation_price() {
-        if (!wp_verify_nonce($_POST['nonce'] ?? '', 'wc_super_bundle_nonce')) {
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'wc_super_bundle_nonce')) {
             wp_send_json_error();
         }
-        $product_id = absint($_POST['product_id']);
-        $variations = array_map('sanitize_text_field', (array) $_POST['variations']);
+        $product_id = absint($_POST['product_id'] ?? 0);
+        $variations = isset($_POST['variations']) ? array_map('sanitize_text_field', wp_unslash((array) $_POST['variations'])) : [];
         $variation_id = wc_get_variation_id_from_variation_data($product_id, $variations);
         $variation = wc_get_product($variation_id);
         if ($variation) {
@@ -1116,7 +1123,8 @@ function wc_super_bundle_init() {
                 $p_id = $product_data['id'];
                 $p = wc_get_product($p_id);
                 if (!$p || !$p->is_in_stock()) {
-                    wc_add_notice(sprintf(__('%s is out of stock.', 'woocommerce-super-bundle'), $p->get_name()), 'error');
+                    $p_name = $p ? $p->get_name() : '#' . $p_id;
+                    wc_add_notice(sprintf(__('%s is out of stock.', 'woocommerce-super-bundle'), $p_name), 'error');
                     return false;
                 }
             }
